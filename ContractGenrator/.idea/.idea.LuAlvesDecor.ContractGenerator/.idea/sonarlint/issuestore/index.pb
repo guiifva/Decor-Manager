@@ -1,0 +1,5 @@
+
+w
+GLuAlvesDecor.ContractGenerator/ContractPickUpAndAssemblePdfGenerator.cs,0\a\0a43e0b08cf31639234cf4a3a5c7fa153663e22e
+Y
+)LuAlvesDecor.ContractGenerator/Program.cs,0\6\06534f9b420aa58c0d55c2b36417d6c44253efb5

@@ -1,0 +1,13 @@
+
+R
+"LuAlvesDecor.ContractGenerator.sln,9\4\94d9243a18240d9ddff08373aec3197fd0b3779b
+Y
+)LuAlvesDecor.ContractGenerator/Program.cs,0\6\06534f9b420aa58c0d55c2b36417d6c44253efb5
+t
+DLuAlvesDecor.ContractGenerator/LuAlvesDecor.ContractGenerator.csproj,4\9\491abfcf60b8e013d8cecc40b5ff2fc7f9244c1d
+s
+CLuAlvesDecor.ContractGenerator/GeneratePickUpAndAssembleContract.cs,d\8\d8d03d5276d9524dd660730a687a4a69c43768b5
+w
+GLuAlvesDecor.ContractGenerator/ContractPickUpAndAssemblePdfGenerator.cs,0\a\0a43e0b08cf31639234cf4a3a5c7fa153663e22e
+X
+(LuAlvesDecor.ContractGenerator/host.json,3\5\35bdbd6f0455f1210cb509f18f3c1f2963c8b671

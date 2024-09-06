@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "ContractGenrator": {
+      "commandName": "Project",
+      "commandLineArgs": "--port 7199",
+      "launchBrowser": false
+    }
+  }
+}
