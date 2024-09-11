@@ -6,7 +6,7 @@ spring:
       matching-strategy: ant_path_matcher
   datasource:
     driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:forum
+    url: jdbc:h2:mem:catalog
     username: sa
     password:
   jpa:
@@ -15,6 +15,8 @@ spring:
       hibernate:
         show_sql: true
         format_sql: true
+        hbm2ddl:
+          auto: update
   h2:
     console:
       enabled: true

@@ -1,10 +1,11 @@
-package com.nocta.eventmanager.catalog.endpoints
+package com.nocta.eventmanager.catalog.presentation
 
-import com.nocta.eventmanager.catalog.application.dtos.CreateCategoryDto
-import com.nocta.eventmanager.catalog.application.dtos.GetCategoryDto
-import com.nocta.eventmanager.catalog.application.dtos.ListCategoriesDto
-import com.nocta.eventmanager.catalog.application.use_cases.CreateCategoryUseCase
-import com.nocta.eventmanager.catalog.application.use_cases.ListCategoriesUseCase
+import com.nocta.eventmanager.catalog.application.use_cases.categories.createCategory.CreateCategoryDto
+import com.nocta.eventmanager.catalog.application.use_cases.categories.createCategory.CreateCategoryUseCase
+import com.nocta.eventmanager.catalog.application.use_cases.categories.getCategory.GetCategoryDto
+import com.nocta.eventmanager.catalog.application.use_cases.categories.listCategories.ListCategoriesDto
+import com.nocta.eventmanager.catalog.application.use_cases.categories.listCategories.ListCategoriesUseCase
+import com.nocta.eventmanager.catalog.presentation.models.ErrorMessageModel
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.ArraySchema
 import io.swagger.v3.oas.annotations.media.Content
@@ -13,7 +14,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
-import org.springframework.web.ErrorResponse
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.util.UriComponentsBuilder
 
@@ -39,7 +39,7 @@ class CategoryController(
                 responseCode = "400",
                 description = "Bad request",
                 content = [Content(
-                    schema = Schema(implementation = ErrorResponse::class),
+                    schema = Schema(implementation = ErrorMessageModel::class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE
                 )]
             ),
@@ -47,14 +47,15 @@ class CategoryController(
                 responseCode = "500",
                 description = "Internal server error",
                 content = [Content(
-                    schema = Schema(implementation = ErrorResponse::class),
+                    schema = Schema(implementation = ErrorMessageModel::class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE
                 )]
             )
         ]
     )
     @PostMapping
-    fun insertCategory(@RequestBody createCategoryDto: CreateCategoryDto, uriBuilder: UriComponentsBuilder
+    fun insertCategory(
+        @RequestBody createCategoryDto: CreateCategoryDto, uriBuilder: UriComponentsBuilder
     ): ResponseEntity<GetCategoryDto> {
         val createdCategoryDto = createCategoryUseCase.createCategory(createCategoryDto)
         val uri = uriBuilder.path("/categories/${createdCategoryDto.id}").build().toUri()
@@ -79,13 +80,13 @@ class CategoryController(
                 responseCode = "500",
                 description = "Internal server error",
                 content = [Content(
-                    schema = Schema(implementation = ErrorResponse::class),
+                    schema = Schema(implementation = ErrorMessageModel::class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE
                 )]
             )
         ]
     )
     fun listCategories(): ResponseEntity<List<ListCategoriesDto>> {
-        return ResponseEntity.ok(listCategoriesUseCase.ListAllCategories())
+        return ResponseEntity.ok(listCategoriesUseCase.listAllCategories())
     }
 }

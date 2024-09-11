@@ -1,27 +1,33 @@
 package com.nocta.eventmanager.catalog.domain
 
 import jakarta.persistence.*
-import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.NotEmpty
+import jakarta.validation.constraints.Size
+import org.hibernate.annotations.UuidGenerator
+import java.util.*
 
-@Entity(name = "categories")
-data class Category (
+@Entity
+@Table(name = "categories")
+data class Category(
+//    @Id
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id : Int? = null,
+    @UuidGenerator
+    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    val id: UUID? = UUID.randomUUID(),
 
     @NotEmpty(message = "Category cannot be empty")
-    val name : String,
+    val name: String,
 
-    @Min(value = 3, message = "Description must be greater than 3 characters")
-    var description : String?,
+    @Size(min = 3, message = "Description must be greater than 3 characters")
+    var description: String?,
 
-    var active : Boolean = true,
+    var active: Boolean = true,
 
-    @OneToMany(mappedBy = "category")
-    var items : List<Item> = ArrayList(),
-){
-    fun changeDescription(description : String?){
+    @ManyToMany(mappedBy = "categories")
+    val products: MutableList<Product>? = mutableListOf()
+) {
+    fun changeDescription(description: String?) {
         if (description != null && description.length <= 3)
             throw IllegalArgumentException()
 
