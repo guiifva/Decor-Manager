@@ -12,7 +12,7 @@ import java.util.*
 data class Theme(
     @Id
     @UuidGenerator
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
 
     @Column(nullable = false, unique = true)
@@ -32,4 +32,11 @@ data class Theme(
 
     @ManyToMany(mappedBy = "themes")
     val products: MutableList<Product>? = mutableListOf()
-)
+) {
+    fun inactivate() {
+        if (!this.active)
+            return
+
+        active = false
+    }
+}

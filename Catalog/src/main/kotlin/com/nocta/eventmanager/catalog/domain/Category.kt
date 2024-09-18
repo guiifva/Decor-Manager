@@ -9,28 +9,34 @@ import java.util.*
 @Entity
 @Table(name = "categories")
 data class Category(
-//    @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Id
     @UuidGenerator
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = UUID.randomUUID(),
 
     @NotEmpty(message = "Category cannot be empty")
-    val name: String,
+    @Column(nullable = false, unique = true)
+    var name: String,
 
     @Size(min = 3, message = "Description must be greater than 3 characters")
-    var description: String?,
+    var description: String? = null,
 
     var active: Boolean = true,
 
     @ManyToMany(mappedBy = "categories")
-    val products: MutableList<Product>? = mutableListOf()
+    var products: MutableList<Product>? = mutableListOf()
 ) {
     fun changeDescription(description: String?) {
         if (description != null && description.length <= 3)
             throw IllegalArgumentException()
 
         this.description = description
+    }
+
+    fun inactivate() {
+        if (!active)
+            return
+
+        this.active = false
     }
 }

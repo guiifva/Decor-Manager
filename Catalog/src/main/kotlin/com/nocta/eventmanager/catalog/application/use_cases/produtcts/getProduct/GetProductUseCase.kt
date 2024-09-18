@@ -3,5 +3,5 @@ package com.nocta.eventmanager.catalog.application.use_cases.produtcts.getProduc
 import java.util.*
 
 interface GetProductUseCase {
-    fun getProduct(id: UUID): GetProductDto
+    fun execute(id: UUID): GetProductDto
 }

@@ -6,6 +6,7 @@ import com.nocta.eventmanager.catalog.application.use_cases.themes.createTheme.C
 import com.nocta.eventmanager.catalog.application.use_cases.themes.createTheme.CreatedThemeDto
 import com.nocta.eventmanager.catalog.application.use_cases.themes.getTheme.GetThemeDto
 import com.nocta.eventmanager.catalog.application.use_cases.themes.getTheme.GetThemeUseCase
+import com.nocta.eventmanager.catalog.application.use_cases.themes.inactivateTheme.InactivateThemeUseCase
 import com.nocta.eventmanager.catalog.application.use_cases.themes.listThemes.ListThemesDto
 import com.nocta.eventmanager.catalog.application.use_cases.themes.listThemes.ListThemesUseCase
 import com.nocta.eventmanager.catalog.presentation.models.ErrorMessageModel
@@ -22,11 +23,12 @@ import org.springframework.web.util.UriComponentsBuilder
 import java.util.*
 
 @RestController
-@RequestMapping("/themes")
+@RequestMapping("/themes", produces = [MediaType.APPLICATION_JSON_VALUE])
 class ThemeController(
     private val listThemesUseCase: ListThemesUseCase,
     private val createThemeUseCase: CreateThemeUseCase,
     private val getThemeUseCase: GetThemeUseCase,
+    private val inactivateThemeUseCase: InactivateThemeUseCase
 ) {
 
     @Operation(summary = "Add a new category", description = "Add a new category")
@@ -62,7 +64,7 @@ class ThemeController(
     fun createTheme(
         @RequestBody createThemeDto: CreateThemeDto, uriBuilder: UriComponentsBuilder
     ): ResponseEntity<CreatedThemeDto> {
-        val createdThemeDto = createThemeUseCase.createTheme(createThemeDto)
+        val createdThemeDto = createThemeUseCase.execute(createThemeDto)
         val uri = uriBuilder.path("/themes/${createdThemeDto.id}").build().toUri()
 
         return ResponseEntity.created(uri).body(createdThemeDto)
@@ -92,12 +94,17 @@ class ThemeController(
         ]
     )
     fun listThemes(): ResponseEntity<List<ListThemesDto>> {
-        return ResponseEntity.ok(listThemesUseCase.listAllThemes())
+        return ResponseEntity.ok(listThemesUseCase.execute())
     }
 
     @GetMapping("/{id}")
     fun getThemeById(@PathVariable("id") id: UUID): ResponseEntity<GetThemeDto> {
-        return ResponseEntity.ok(getThemeUseCase.getTheme(id))
+        return ResponseEntity.ok(getThemeUseCase.execute(id))
     }
 
+    @DeleteMapping("/{id}")
+    fun inactivateTheme(@PathVariable("id") id: UUID): ResponseEntity<Unit> {
+        inactivateThemeUseCase.execute(id)
+        return ResponseEntity.noContent().build()
+    }
 }

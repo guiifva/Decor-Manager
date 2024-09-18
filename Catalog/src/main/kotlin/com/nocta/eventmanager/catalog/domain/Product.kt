@@ -7,11 +7,11 @@ import org.hibernate.annotations.UuidGenerator
 import java.util.*
 
 @Entity
-@Table(name = "items")
+@Table(name = "products")
 data class Product(
     @Id
     @UuidGenerator
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
+    @GeneratedValue(strategy = GenerationType.UUID)
     val id: UUID? = null,
 
     @Column(nullable = false, unique = true)

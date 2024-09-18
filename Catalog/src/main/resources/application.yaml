@@ -5,18 +5,15 @@ spring:
     pathmatch:
       matching-strategy: ant_path_matcher
   datasource:
-    driverClassName: org.h2.Driver
-    url: jdbc:h2:mem:catalog
-    username: sa
-    password:
+    url: jdbc:postgresql://localhost:5432/decor-manager.catalog
+    username: ${CATALOG_POSTGRES_USER}
+    password: ${CATALOG_POSTGRES_PASSWORD}
+    driver-class-name: org.postgresql.Driver
   jpa:
-    database-platform: org.hibernate.dialect.H2Dialect
+    show-sql: true
+    hibernate:
+      ddl-auto: none
     properties:
       hibernate:
-        show_sql: true
         format_sql: true
-        hbm2ddl:
-          auto: update
-  h2:
-    console:
-      enabled: true
+        dialect: org.hibernate.dialect.PostgreSQLDialect

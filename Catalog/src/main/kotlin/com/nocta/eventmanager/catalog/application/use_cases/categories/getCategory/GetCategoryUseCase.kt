@@ -2,4 +2,6 @@ package com.nocta.eventmanager.catalog.application.use_cases.categories.getCateg
 
 import java.util.*
 
-data class GetCategoryDto(var id: UUID? = null, var name: String, var description: String? = null)
+interface GetCategoryUseCase {
+    fun execute(id: UUID): GetCategoryDto
+}

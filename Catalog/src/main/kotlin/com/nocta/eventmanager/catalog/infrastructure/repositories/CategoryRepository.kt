@@ -8,4 +8,5 @@ import java.util.*
 @Repository
 interface CategoryRepository : JpaRepository<Category, UUID> {
     fun findByIdIn(categoryIds: List<UUID>?): List<Category>
+    fun findByNameIgnoreCase(name: String): Category?
 }
