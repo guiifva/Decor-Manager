@@ -13,7 +13,7 @@ class CreateCategoryUseCaseImpl(private val categoryRepository: CategoryReposito
 
     @Transactional
     override fun execute(createCategoryDto: CreateCategoryDto): GetCategoryDto {
-        if (categoryRepository.findByNameIgnoreCase(createCategoryDto.name) != null) {
+        if (categoryRepository.findByNameAndIdIgnoreCase(createCategoryDto.name) != null) {
             throw CategoryAlreadyExistsException(createCategoryDto.name)
         }
 

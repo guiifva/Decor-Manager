@@ -14,7 +14,6 @@ class CreateProductUseCaseImpl(private val repository: ProductRepository,
                                private val categoryRepository: CategoryRepository,
                                private val themeRepository: ThemeRepository
 ) : CreateProductUseCase {
-
     override fun execute(productDto: CreateProductDto): CreatedProductDto {
         repository.findByName(productDto.name)?.let {
             throw ProductAlreadyExistsException("Product with name ${productDto.name} already exists")
@@ -32,7 +31,7 @@ class CreateProductUseCaseImpl(private val repository: ProductRepository,
             throw DomainException("Categories not found")
         }
 
-        val product = productDto.toProduct(categories, themes)
+        val product = productDto.toProduct()
 
         product.addCategories(categories)
         product.addThemes(themes)

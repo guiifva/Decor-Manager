@@ -1,6 +1,8 @@
 package com.nocta.eventmanager.catalog.presentation
 
 import com.nocta.eventmanager.catalog.application.use_cases.categories.getCategory.GetCategoryDto
+import com.nocta.eventmanager.catalog.application.use_cases.produtcts.listProductsByCategory.ListProductsByThemeDto
+import com.nocta.eventmanager.catalog.application.use_cases.produtcts.listProductsByCategory.ListProductsByThemeUseCase
 import com.nocta.eventmanager.catalog.application.use_cases.themes.createTheme.CreateThemeDto
 import com.nocta.eventmanager.catalog.application.use_cases.themes.createTheme.CreateThemeUseCase
 import com.nocta.eventmanager.catalog.application.use_cases.themes.createTheme.CreatedThemeDto
@@ -16,6 +18,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -24,11 +27,13 @@ import java.util.*
 
 @RestController
 @RequestMapping("/themes", produces = [MediaType.APPLICATION_JSON_VALUE])
+@Tag(name = "Themes", description = "Theme management")
 class ThemeController(
     private val listThemesUseCase: ListThemesUseCase,
     private val createThemeUseCase: CreateThemeUseCase,
     private val getThemeUseCase: GetThemeUseCase,
-    private val inactivateThemeUseCase: InactivateThemeUseCase
+    private val inactivateThemeUseCase: InactivateThemeUseCase,
+    private val listProductsByThemeUseCase: ListProductsByThemeUseCase
 ) {
 
     @Operation(summary = "Add a new category", description = "Add a new category")
@@ -98,13 +103,18 @@ class ThemeController(
     }
 
     @GetMapping("/{id}")
-    fun getThemeById(@PathVariable("id") id: UUID): ResponseEntity<GetThemeDto> {
+    fun getThemeById(@PathVariable id: UUID): ResponseEntity<GetThemeDto> {
         return ResponseEntity.ok(getThemeUseCase.execute(id))
     }
 
     @DeleteMapping("/{id}")
-    fun inactivateTheme(@PathVariable("id") id: UUID): ResponseEntity<Unit> {
+    fun inactivateTheme(@PathVariable id: UUID): ResponseEntity<Unit> {
         inactivateThemeUseCase.execute(id)
         return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping("/{id}/prodcts")
+    fun listProductsByTheme(@PathVariable id: UUID): ResponseEntity<List<ListProductsByThemeDto>> {
+        return ResponseEntity.ok(listProductsByThemeUseCase.execute(id))
     }
 }

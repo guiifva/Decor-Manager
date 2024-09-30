@@ -7,6 +7,7 @@ import com.nocta.eventmanager.catalog.application.use_cases.categories.getCatego
 import com.nocta.eventmanager.catalog.application.use_cases.categories.getCategory.GetCategoryUseCase
 import com.nocta.eventmanager.catalog.application.use_cases.categories.listCategories.ListCategoriesDto
 import com.nocta.eventmanager.catalog.application.use_cases.categories.listCategories.ListCategoriesUseCase
+import com.nocta.eventmanager.catalog.application.use_cases.produtcts.listProductsByCategory.ListProductsByCategoryUseCase
 import com.nocta.eventmanager.catalog.application.use_cases.themes.inactivateTheme.InactivateCategoryUseCase
 import com.nocta.eventmanager.catalog.presentation.models.ErrorMessageModel
 import io.swagger.v3.oas.annotations.Operation
@@ -15,6 +16,7 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -23,12 +25,14 @@ import java.util.*
 
 @RestController
 @RequestMapping("/categories", produces = [MediaType.APPLICATION_JSON_VALUE])
+@Tag(name = "Categories", description = "Category management")
 class CategoryController(
     private val listCategoriesUseCase: ListCategoriesUseCase,
     private val createCategoryUseCase: CreateCategoryUseCase,
     private val categoryNameAlreadyExistsUseCase: CategoryNameAlreadyExistsUseCase,
     private val getCategoryUseCase: GetCategoryUseCase,
-    private val inactivateCategoryUseCase: InactivateCategoryUseCase
+    private val inactivateCategoryUseCase: InactivateCategoryUseCase,
+    private val listProductsByCategoryUseCase: ListProductsByCategoryUseCase,
 ) {
 
     @Operation(summary = "Add a new category", description = "Add a new category")
@@ -103,6 +107,12 @@ class CategoryController(
         return ResponseEntity.ok(object { val exists = categoryNameAlreadyExistsUseCase.execute(name)})
     }
 
+    @GetMapping("/exists/{name}/{id}")
+    @Operation(summary = "Check if category name already exists", description = "Check if category name already exists")
+    fun categoryNameAlreadyExists(@PathVariable name: String, @PathVariable(required = false) id: UUID?): ResponseEntity<Any> {
+        return ResponseEntity.ok(object { val exists = categoryNameAlreadyExistsUseCase.execute(name, id)})
+    }
+
     @GetMapping("/{id}")
     @Operation(summary = "Get category by id", description = "Get category by id")
     fun getCategoryById(@PathVariable id: UUID): ResponseEntity<GetCategoryDto> {
@@ -114,5 +124,11 @@ class CategoryController(
     fun inactivateCategoryById(@PathVariable id: UUID): ResponseEntity<Any> {
         inactivateCategoryUseCase.execute(id)
         return ResponseEntity.noContent().build()
+    }
+
+    @GetMapping("/{id}/products")
+    @Operation(summary = "List products by category id", description = "List products by category id")
+    fun listProductsByCategoryId(@PathVariable id: UUID): ResponseEntity<Any> {
+        return ResponseEntity.ok(listProductsByCategoryUseCase.execute(id))
     }
 }

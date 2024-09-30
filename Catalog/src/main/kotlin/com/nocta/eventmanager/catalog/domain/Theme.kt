@@ -34,8 +34,9 @@ data class Theme(
     val products: MutableList<Product>? = mutableListOf()
 ) {
     fun inactivate() {
-        if (!this.active)
+        if (!this.active){
             return
+        }
 
         active = false
     }

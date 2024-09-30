@@ -54,16 +54,42 @@ data class Product(
     var themes: MutableList<Theme>? = mutableListOf()
 ){
     fun addCategories(categories: List<Category>){
-        if (this.categories == null)
+        if (this.categories == null){
             this.categories = mutableListOf()
+        }
 
         this.categories!!.addAll(categories)
     }
 
     fun addThemes(themes: List<Theme>){
-        if (this.themes == null)
+        if (this.themes == null){
             this.themes = mutableListOf()
+        }
 
         this.themes!!.addAll(themes)
+    }
+
+    fun isAvailable(quantity: Int? = null): Boolean {
+        if (quantity == null){
+            return this.quantity!! > this.reservedQuantity
+        }
+
+        if (quantity <= 0){
+            throw Exception("Quantity must be greater than 0")
+        }
+
+        return quantity <= this.quantity!! - this.reservedQuantity
+    }
+
+    fun reserve(quantity: Int){
+        if (quantity <= 0){
+            throw Exception("Quantity must be greater than 0")
+        }
+
+        if (quantity > this.quantity!!){
+            throw Exception("Quantity to reserve is greater than the available quantity")
+        }
+
+        this.reservedQuantity += quantity
     }
 }

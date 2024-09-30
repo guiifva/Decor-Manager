@@ -8,4 +8,6 @@ import java.util.*
 @Repository
 interface ProductRepository : JpaRepository<Product, UUID> {
     fun findByName(productName: String): Product?
+    fun findByCategories_Id(id: UUID) : List<Product>
+    fun findByThemes_Id(id: UUID) : List<Product>
 }

@@ -27,15 +27,17 @@ data class Category(
     var products: MutableList<Product>? = mutableListOf()
 ) {
     fun changeDescription(description: String?) {
-        if (description != null && description.length <= 3)
+        if (description != null && description.length <= 3){
             throw IllegalArgumentException()
+        }
 
         this.description = description
     }
 
     fun inactivate() {
-        if (!active)
+        if (!active){
             return
+        }
 
         this.active = false
     }
