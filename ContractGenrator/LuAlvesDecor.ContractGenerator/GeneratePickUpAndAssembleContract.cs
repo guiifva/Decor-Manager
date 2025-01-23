@@ -10,13 +10,12 @@ namespace ContractGenrator;
 
 public class GeneratePickUpAndAssembleContract
 {
-    private readonly ILogger _logger;
-    private readonly AssembleDecorationContractPdfGenerator _generator;
-
-    public GeneratePickUpAndAssembleContract(ILoggerFactory loggerFactory)
+    private readonly ILogger<GeneratePickUpAndAssembleContract> _logger;
+    private readonly IContractPdfGenerator _generator;
+    public GeneratePickUpAndAssembleContract(ILogger<GeneratePickUpAndAssembleContract> logger, IContractPdfGenerator generator)
     {
-        _logger = loggerFactory.CreateLogger<GeneratePickUpAndAssembleContract>();
-        _generator = new AssembleDecorationContractPdfGenerator();
+        _logger = logger;
+        _generator = generator;
     }
 
     [Function("GeneratePickUpAndAssembleContract")]
@@ -34,7 +33,7 @@ public class GeneratePickUpAndAssembleContract
         
         var response = req.CreateResponse(HttpStatusCode.OK);
         response.Headers.Add("Access-Control-Expose-Headers", "Content-Disposition");
-        response.Headers.Add("Content-Type", "application/pdf");
+        response.Headers.Add("Content-Type", pdfFile.ContentType);
         response.Headers.Add("Content-Disposition", $"attachment;filename=\"{pdfFile.GetFileName()}\"");
         
         response.Body = new MemoryStream(pdfFile.Bytes);

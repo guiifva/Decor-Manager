@@ -1,20 +1,24 @@
 using System.Globalization;
 using ContractGenrator.Helpers;
+using Microsoft.Extensions.Options;
 using QuestPDF.Fluent;
 using QuestPDF.Helpers;
 using QuestPDF.Infrastructure;
 
 namespace ContractGenrator;
 
-public class AssembleDecorationContractPdfGenerator
+public class AssembleDecorationContractPdfGenerator(AppSettings appSettings)
+    : IContractPdfGenerator
 {
-    public PdfFile GetPdfFile(GenerateAssembleDecorationContractRequestDto assembleDecarationContractRequestDto)
+    private readonly AppSettings _appSettings = appSettings;
+
+    public PdfFile GetPdfFile(GenerateAssembleDecorationContractRequestDto assembleDecorationContractRequestDto)
     {
-        var pdf = Generate(assembleDecarationContractRequestDto);
-        return new PdfFile(pdf, assembleDecarationContractRequestDto.CustomerName);
+        var pdf = Generate(assembleDecorationContractRequestDto);
+        return new PdfFile(pdf, assembleDecorationContractRequestDto.CustomerName);
     }
 
-    private byte[] Generate(GenerateAssembleDecorationContractRequestDto pegueMonteContractRequestDto)
+    private byte[] Generate(GenerateAssembleDecorationContractRequestDto assembleDecorationContractRequestDto)
     {
         return Document.Create(document =>
         {
@@ -30,23 +34,21 @@ public class AssembleDecorationContractPdfGenerator
                     .Column(column =>
                     {
                         column.Spacing(10);
-
                         column.Item().Text("Entre as partes:").Bold();
-                        column.Item().Text(
-                            "Locador (a): 53.782.266 LUCIANA DA SILVA VIEIRA ALVES, inscrita no CNPJ 53.782.266/0001-08, em nome de Luciana Alves Decorações, situada no endereço Rua: José Nunes da Silva, 870 - Comerciários - Lins/SP, telefone (14) 99869-8287.");
-                        column.Item().Text($"Locatário (a): {GetLocatarioCompletoFormatted(pegueMonteContractRequestDto)}");
+                        column.Item().Text($"Locador (a): {_appSettings.ContractSettings.ContractTerms.Lessor}");
+                        column.Item().Text($"Locatário (a): {_appSettings.CompanyInfo.CorporationName}, inscrita no CNPJ {_appSettings.CompanyInfo.Cnpj}, em nome de {_appSettings.CompanyInfo.Name}, situada no endereço {_appSettings.CompanyInfo.Address}, telefone {_appSettings.CompanyInfo.Phone}.");
 
                         column.Item().Text("Objeto do Contrato:").Bold();
-                        column.Item().Text(GetObjetoDoContratoFormatted(pegueMonteContractRequestDto));
+                        column.Item().Text(GetObjetoDoContratoFormatted(assembleDecorationContractRequestDto));
                         column.Item().Text("A decoração será desmontada e recolhida após o término do evento ou em data e horário combinados entre as partes.");
 
                         column.Item().Text("Termos e Condições:").Bold();
                         column.Item().Text("1. O serviço compreende a montagem da decoração no endereço citado acima.");
-                        column.Item().Text("2. O atraso na devolução do material implicará em multa de 10% sobre o valor do serviço ou locação.");
+                        column.Item().Text($"2. O atraso na devolução do material implicará em multa de {_appSettings.ContractSettings.LateReturnPenaltyPercentage}% sobre o valor do serviço ou locação.");
                         column.Item().Text(text =>
                         {
                             text.Span("3. O valor do aluguel fica estabelecido em ");
-                            text.Span(FormatToReais(pegueMonteContractRequestDto.DecorationValue)).Bold();
+                            text.Span(FormatToReais(assembleDecorationContractRequestDto.DecorationValue)).Bold();
                             text.Span(" para a decoração, sendo:");
                         });
 
@@ -57,18 +59,18 @@ public class AssembleDecorationContractPdfGenerator
                                 .Text(text =>
                                 {
                                     text.Span("• 30% no ato da assinatura do contrato como sinal de reserva, no valor de ");
-                                    text.Span(GetThrdyPercentOfValueInReais(pegueMonteContractRequestDto.DecorationValue)).Bold();
+                                    text.Span(GetDownPaymentInReais(assembleDecorationContractRequestDto.DecorationValue)).Bold();
                                 });
                             innerColumn.Item().Text(text =>
                             {
                                 text.Span("• Os 70% restantes serão pagos no dia da montagem da decoração, no valor de ");
-                                text.Span(GetSeventyPercentPfValueInReais(pegueMonteContractRequestDto.DecorationValue)).Bold();
+                                text.Span(GetRemainingPaymentInReais(assembleDecorationContractRequestDto.DecorationValue)).Bold();
                             });
                         });
 
                         column.Item().Text("4. Os valores poderão ser pagos das seguintes formas:");
 
-                        
+
                         column.Item().PaddingLeft(10).Text("• Via Pix para:");
                         column.Item().PaddingLeft(10).Row(row =>
                         {
@@ -78,15 +80,15 @@ public class AssembleDecorationContractPdfGenerator
                             // Adiciona os dados do Pix na segunda coluna
                             row.RelativeItem().Column(innerColumn =>
                             {
-                                innerColumn.Item().PaddingLeft(10).Text("Chave CNPJ: 53.782.266/0001-08");
-                                innerColumn.Item().PaddingLeft(10).Text("Nome: Luciana da S. V. Alves");
-                                innerColumn.Item().PaddingLeft(10).Text("Banco: Nubank S.A.");
+                                innerColumn.Item().PaddingLeft(10).Text($"Chave CNPJ: {_appSettings.PaymentInfo.PixCnpj}");
+                                innerColumn.Item().PaddingLeft(10).Text($"Nome: {_appSettings.PaymentInfo.PixName}");
+                                innerColumn.Item().PaddingLeft(10).Text($"Banco: {_appSettings.PaymentInfo.PixBank}");
                             });
                         });
-                        
+
                         column.Item().PaddingLeft(10).Text("• Via cartão de crédito em até 12x, com as taxas de parcelamento por conta do locatário.");
                     });
-                
+
                 Footer(page);
             });
 
@@ -103,7 +105,7 @@ public class AssembleDecorationContractPdfGenerator
                     {
                         column.Spacing(10);
                         column.Item().Text("5. Os serviços ou produtos discriminados abaixo estão inclusos:");
-                        column.Item().PaddingBottom(1, Unit.Centimetre).Element(conatiner => ComposeTable(conatiner, pegueMonteContractRequestDto.Items)); // Adiciona a tabela dinâmica
+                        column.Item().PaddingBottom(1, Unit.Centimetre).Element(conatiner => ComposeTable(conatiner, assembleDecorationContractRequestDto.Items)); // Adiciona a tabela dinâmica
 
                         column.Item().Text("6. No caso de desistência, não haverá devolução da entrada.");
                         column.Item().Text("7. Trocas de data devem ser feitas com 30 dias de antecedência, sujeitas à disponibilidade.");
@@ -112,14 +114,14 @@ public class AssembleDecorationContractPdfGenerator
                         column.Item().Text("10. Autorizo a divulgação das imagens da decoração.");
                         column.Item().Text("11. As partes comprometem-se a cumprir horários determinados e datas, ficando o foro da cidade de Lins como competente para qualquer questão oriunda deste contrato.");
 
-                        column.Item().ShowEntire().Column(column =>
+                        column.Item().ShowEntire().Column(insideColumn =>
                         {
-                            column.Item().PaddingTop(1, Unit.Centimetre).Text($"Lins {DateTime.UtcNow:dd 'd'e MMMM 'd'e yyyy}");
+                            insideColumn.Item().PaddingTop(1, Unit.Centimetre).Text($"Lins {DateTime.UtcNow:dd 'd'e MMMM 'd'e yyyy}");
 
-                            column.Item().PaddingTop(2, Unit.Centimetre).Row(row =>
+                            insideColumn.Item().PaddingTop(2, Unit.Centimetre).Row(row =>
                             {
-                                row.RelativeItem().Text("________________________________\nLocador (a): EMPRESA:\nLuciana Alves Decorações\nCNPJ: 53.782.266/0001-08\n\nPor sua representante legal:\nLuciana da Silva Vieira Alves\nCPF: 174.078.978-40\nCargo: Proprietária/Representante Legal\n");
-                                row.RelativeItem().Text($"________________________________\nLocatário (a): {pegueMonteContractRequestDto.CustomerName}\nCPF: {pegueMonteContractRequestDto.CustomerDocument.FormatCpf()}");
+                                row.RelativeItem().Text($"________________________________\nLocador (a): EMPRESA:\n{_appSettings.CompanyInfo.Name}\n{_appSettings.CompanyInfo.Cnpj}\n\nPor sua representante legal:\n{_appSettings.CompanyInfo.LegalRepresentative}\nCPF: {_appSettings.CompanyInfo.LegalRepresentativeCpf}");
+                                row.RelativeItem().Text($"________________________________\nLocatário (a): {assembleDecorationContractRequestDto.CustomerName}\nCPF: {assembleDecorationContractRequestDto.CustomerDocument.FormatCpf()}");
                             });
                         });
                     });
@@ -153,7 +155,7 @@ public class AssembleDecorationContractPdfGenerator
 
             foreach (var (item, index) in items.Select((item, index) => (item, index)))
             {
-                table.Cell().Element(CellStyle).AlignCenter().Text((index+1).ToString());
+                table.Cell().Element(CellStyle).AlignCenter().Text((index + 1).ToString());
                 table.Cell().Element(CellStyle).Text(item.Description);
                 table.Cell().Element(CellStyle).AlignCenter().Text(item.Quantity.ToString());
 
@@ -208,19 +210,19 @@ public class AssembleDecorationContractPdfGenerator
         return $"A decoração do tema {model.DecorationTheme} será montada no endereço {model.DecorationSetupAddress}, no dia {model.DecorationScheduleDateAndTime.Date:dd/MM/yyyy} às {model.DecorationScheduleDateAndTime:HH:mm}.";
     }
 
-    private static string GetThrdyPercentOfValueInReais(decimal value)
+    private string GetDownPaymentInReais(decimal value)
     {
-        return FormatToReais(Math.Round(value * 0.3m, 2));
+        return FormatToReais(Math.Round(value * _appSettings.ContractSettings.DownPaymentPercentage, 2));
     }
 
-    private static string GetSeventyPercentPfValueInReais(decimal value)
+    private string GetRemainingPaymentInReais(decimal value)
     {
-        var thirdyPercentValue = Math.Round(value * 0.3m, 2);
-        var seventyPercentValue = value - thirdyPercentValue;
+        var downPaymentValue = Math.Round(value * _appSettings.ContractSettings.DownPaymentPercentage, 2);
+        var remainingPaymentValue = value - downPaymentValue;
 
-        return FormatToReais(seventyPercentValue);
+        return FormatToReais(remainingPaymentValue);
     }
-    
-    private static string FormatToReais(decimal value) 
+
+    private static string FormatToReais(decimal value)
         => string.Format(CultureInfo.GetCultureInfo("pt-BR"), "{0:C}", value);
 }

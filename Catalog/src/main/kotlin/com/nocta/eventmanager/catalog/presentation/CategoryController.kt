@@ -65,9 +65,7 @@ class CategoryController(
         ]
     )
     @PostMapping
-    fun insertCategory(
-        @RequestBody createCategoryDto: CreateCategoryDto, uriBuilder: UriComponentsBuilder
-    ): ResponseEntity<GetCategoryDto> {
+    fun insertCategory(@RequestBody createCategoryDto: CreateCategoryDto, uriBuilder: UriComponentsBuilder): ResponseEntity<GetCategoryDto>{
         val createdCategoryDto = createCategoryUseCase.execute(createCategoryDto)
         val uri = uriBuilder.path("/categories/${createdCategoryDto.id}").build().toUri()
 

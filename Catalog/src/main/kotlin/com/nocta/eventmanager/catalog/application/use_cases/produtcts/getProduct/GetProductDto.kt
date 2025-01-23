@@ -13,6 +13,6 @@ data class GetProductDto(val id: UUID? = null,
                          val categories: MutableList<GetProductDtoCategoryDto>? = null,
                          val themes: MutableList<GetProductThemeDto>? = null)
 
-
 data class GetProductDtoCategoryDto(val id: UUID, val name: String, val description: String?)
+
 data class GetProductThemeDto(val id: UUID, val name: String, val description: String?)
